@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- 인스타그램 색상 -->
+    <color name="INSTAGRAM_blue">#405de6</color>
+    <color name="INSTAGRAM_blue2">#5851db</color>
+    <color name="INSTAGRAM_purple">#833ab4</color>
+    <color name="INSTAGRAM_pink">#c13584</color>
+    <color name="INSTAGRAM_pink2">#e1306c</color>
+    <color name="INSTAGRAM_red">#fd1d1d</color>
+    <color name="INSTAGRAM_orange">#f56040</color>
+    <color name="INSTAGRAM_orange2">#f77737</color>
+    <color name="INSTAGRAM_yellow">#fcaf45</color>
+    <color name="INSTAGRAM_yellow2">#ffdc80</color>
 </resources>
