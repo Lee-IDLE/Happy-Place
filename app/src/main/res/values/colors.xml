@@ -2,6 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="colorPrimary">#5851db</color>
+    <color name="colorPrimaryDark">#405de6</color>
+    <color name="colorAccent">#c13584</color>
 
     <!-- 인스타그램 색상 -->
     <color name="INSTAGRAM_blue">#405de6</color>
