@@ -17,4 +17,8 @@
     <color name="INSTAGRAM_orange2">#f77737</color>
     <color name="INSTAGRAM_yellow">#fcaf45</color>
     <color name="INSTAGRAM_yellow2">#ffdc80</color>
+
+    <color name="primary_text_color">#212121</color>
+    <color name="secondary_text_color">#9AA2AF</color>
+    <color name="button_background_color">#63ace5</color>
 </resources>

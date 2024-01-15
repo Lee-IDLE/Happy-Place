@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.backend.wasm.ir2wasm.bind
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.happyplace"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.happyplace"
@@ -32,6 +34,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    buildFeatures{
+        viewBinding = true
     }
 }
 
