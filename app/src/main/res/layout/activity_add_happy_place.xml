@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -18,121 +19,136 @@
         />
 
     <ScrollView
+        android:id="@+id/sv_main"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/toolbar_add_place"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="vertical">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilTitle"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            app:boxStrokeColor="@color/INSTAGRAM_pink"
-            app:hintTextColor="@color/colorPrimary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:padding="@dimen/main_content_padding">
 
-            <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/etTitle"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Title"
-                android:inputType="numberDecimal"
-                android:textSize="16sp"
-                />
+                android:layout_margin="10dp"
+                app:boxStrokeColor="@color/INSTAGRAM_pink"
+                app:hintTextColor="@color/colorPrimary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/edit_text_hint_title"
+                    android:inputType="textCapWords"
+                    android:textColor="@color/primary_text_color"
+                    android:textColorHint="@color/secondary_text_color"
+                    android:textSize="@dimen/edit_text_text_size"
+                    />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            app:boxStrokeColor="@color/INSTAGRAM_pink"
-            app:hintTextColor="@color/colorPrimary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/etDescription"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description"
-                android:inputType="numberDecimal"
-                android:textSize="16sp"
-                />
+                android:layout_marginTop="@dimen/add_screen_til_marginTop"
+                app:layout_constraintTop_toBottomOf="@id/tilTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Description"
+                    android:inputType="numberDecimal"
+                    android:textSize="16sp"
+                    />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            app:boxStrokeColor="@color/INSTAGRAM_pink"
-            app:hintTextColor="@color/colorPrimary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/etDate"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Date"
-                android:inputType="numberDecimal"
-                android:textSize="16sp"
-                />
+                android:layout_margin="10dp"
+                app:boxStrokeColor="@color/INSTAGRAM_pink"
+                app:hintTextColor="@color/colorPrimary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Date"
+                    android:inputType="numberDecimal"
+                    android:textSize="16sp"
+                    />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilLocation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            app:boxStrokeColor="@color/INSTAGRAM_pink"
-            app:hintTextColor="@color/colorPrimary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/etLocation"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilLocation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Location"
-                android:inputType="numberDecimal"
-                android:textSize="16sp"
-                />
+                android:layout_margin="10dp"
+                app:boxStrokeColor="@color/INSTAGRAM_pink"
+                app:hintTextColor="@color/colorPrimary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Location"
+                    android:inputType="numberDecimal"
+                    android:textSize="16sp"
+                    />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="150dp"
+                    />
+                <Button
+                    android:id="@+id/btnAddImage"
+                    android:layout_width="0dp"
+                    android:layout_height="150dp"
+                    android:text="ADD IMAGE"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/INSTAGRAM_pink"
+                    />
+            </FrameLayout>
+
             <Button
-                android:id="@+id/btnAddImage"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:text="ADD IMAGE"
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SAVE"
                 android:textSize="20sp"
+                android:textColor="@color/colorPrimary"
                 android:textStyle="bold"
-                android:textColor="@color/INSTAGRAM_pink"
                 />
-        </FrameLayout>
 
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SAVE"
-            android:textSize="20sp"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="bold"
-            />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 
