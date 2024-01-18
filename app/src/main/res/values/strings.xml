@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Happy Place</string>
     <string name="edit_text_hint_title">Title</string>
+    <string name="edit_text_hint_location">Location</string>
+    <string name="edit_text_hint_date">YYYY-MM-DD</string>
+    <string name="edit_text_hint_description">Description</string>
 </resources>
