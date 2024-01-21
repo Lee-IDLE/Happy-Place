@@ -36,9 +36,7 @@
                 android:id="@+id/tilTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                app:boxStrokeColor="@color/INSTAGRAM_pink"
-                app:hintTextColor="@color/colorPrimary"
+                android:layout_marginTop="@dimen/add_screen_til_marginTop"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -84,9 +82,7 @@
                 android:id="@+id/tilDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                app:boxStrokeColor="@color/INSTAGRAM_pink"
-                app:hintTextColor="@color/colorPrimary"
+                android:layout_marginTop="@dimen/add_screen_til_marginTop"
                 app:layout_constraintTop_toBottomOf="@id/tilDescription"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -110,8 +106,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/add_screen_til_marginTop"
-                app:boxStrokeColor="@color/INSTAGRAM_pink"
-                app:hintTextColor="@color/colorPrimary"
                 app:layout_constraintTop_toBottomOf="@id/tilDate"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -139,27 +133,50 @@
                 android:padding="@dimen/add_screen_place_image_padding"
                 android:scaleType="centerCrop"
                 android:src="@drawable/add_screen_image_placeholder"
+                app:layout_constraintTop_toBottomOf="@id/tilLocation"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 />
+            <!-- layout_constraintHorizontal_bias: 뷰의 수평 방향 배치를 제어
+            0~1사이 값. 0은 뷰가 부모 뷰의 왼쪽, 1은 부모 뷰의 오른쪽-->
 
-            <Button
-                android:id="@+id/btnAddImage"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:text="ADD IMAGE"
-                android:textSize="20sp"
+            <TextView
+                android:id="@+id/tvAddImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/add_screen_text_add_image_marginTop"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="@dimen/add_screen_text_add_image_padding"
+                android:text="@string/text_add_image"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/add_screen_text_add_image_textSize"
                 android:textStyle="bold"
-                android:textColor="@color/INSTAGRAM_pink"
-                />
+                app:layout_constraintTop_toBottomOf="@id/tilLocation"
+                app:layout_constraintBottom_toTopOf="@+id/btnSave"
+                app:layout_constraintStart_toEndOf="@id/ivPlaceImage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.45"
+                app:layout_constraintVertical_bias="0.019"/>
 
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SAVE"
-                android:textSize="20sp"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold"
-                />
+                android:gravity="center"
+                android:layout_marginTop="@dimen/add_screen_btn_save_marginTop"
+                android:background="@drawable/shape_buton_rounded"
+                android:paddingTop="@dimen/add_screen_btn_save_paddingTopBottom"
+                android:paddingBottom="@dimen/add_screen_btn_save_paddingTopBottom"
+                android:text="@string/btn_text_save"
+                android:textColor="@color/white"
+                android:textSize="@dimen/btn_text_size"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivPlaceImage"/>
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
