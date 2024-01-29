@@ -4,15 +4,17 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
-import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.View
-import android.widget.DatePicker
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.happyplace.databinding.ActivityAddHappyPlaceBinding
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -28,6 +30,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private var cal = Calendar.getInstance()
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
@@ -52,6 +55,11 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         }
         binding.etDate.setOnClickListener(this@AddHappyPlaceActivity)
         binding.tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
+
+        binding.tvAddImage.setOnClickListener{
+            val intent = Intent(this@AddHappyPlaceActivity, CameraActivity::class.java)
+            activityCameraResult.launch(intent)
+        }
     }
 
     override fun onClick(v: View?) {
@@ -92,10 +100,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                             (report: MultiplePermissionsReport?) {
                     // 권한이 모두 허가 되었는지 체크
                     if(report!!.areAllPermissionsGranted()){
-                        Toast.makeText(
-                            this@AddHappyPlaceActivity,
-                            "Storage READ/WRITE permission are granted. Now you can select an image from GALLERY",
-                            Toast.LENGTH_SHORT).show()
+
                     }
                 }
                 override fun onPermissionRationaleShouldBeShown
@@ -134,5 +139,26 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         val myFormat = "yyyy.MM.dd"
         val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
         binding.etDate.setText(sdf.format(cal.time).toString())
+    }
+
+    private val activityCameraResult: ActivityResultLauncher<Intent>
+    = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+        if(result.resultCode == RESULT_OK && result.data != null){
+            val data = result.data
+            val path = data?.getStringExtra("path") ?:""
+
+            if(path.isNotEmpty()){
+                try{
+                    val bitmap = BitmapFactory.decodeFile(path)
+                    binding.ivPlaceImage.setImageBitmap(bitmap)
+                    binding.ivPlaceImage.rotation = 90f
+                }catch (e: Exception) {
+                    Log.e("Image Error", e.message, e)
+                    e.printStackTrace()
+                }
+
+
+            }
+        }
     }
 }
