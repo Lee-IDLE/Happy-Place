@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.view.View
@@ -21,6 +22,7 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -55,11 +57,6 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         }
         binding.etDate.setOnClickListener(this@AddHappyPlaceActivity)
         binding.tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
-
-        binding.tvAddImage.setOnClickListener{
-            val intent = Intent(this@AddHappyPlaceActivity, CameraActivity::class.java)
-            activityCameraResult.launch(intent)
-        }
     }
 
     override fun onClick(v: View?) {
@@ -76,11 +73,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 pictureDialog.setItems(pictureDialogItems){ dialog, which ->
                     when(which){
                         0 -> {choosePhotoFromGallery()}
-                        1 -> {
-                            Toast.makeText(this@AddHappyPlaceActivity,
-                                "Camera selection coming soon...",
-                                Toast.LENGTH_SHORT).show()
-                        }
+                        1 -> {takePhoto()}
                     }
                 }
 
@@ -100,7 +93,20 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                             (report: MultiplePermissionsReport?) {
                     // 권한이 모두 허가 되었는지 체크
                     if(report!!.areAllPermissionsGranted()){
+                        // 갤러리에서 이미지 가져오기
+                        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        //galleryIntent.setDataAndType(
+                        //MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        //"image/*"
+                        //)
 
+                        activityResult.launch(galleryIntent)
+                    }
+                    else{
+                        Toast.makeText(
+                            this@AddHappyPlaceActivity,
+                            "권한이 없습니다.",
+                            Toast.LENGTH_SHORT).show()
                     }
                 }
                 override fun onPermissionRationaleShouldBeShown
@@ -109,9 +115,35 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     showRationalDialogForPermissions()
                 }
             }).onSameThread().check()
+    }
 
-        // withListener 안에 객체를 넣어줘야 해서 자바로는 MultiplePermissionsListener() { 할일; }로 했지만
-        // 코틀린에서는 object(객체): MultiplePermissionsListener(타입) { 할일 }으로 했다.
+    private fun takePhoto(){
+        Dexter.withContext(this@AddHappyPlaceActivity)
+            .withPermissions(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            .withListener(object: MultiplePermissionsListener{ // object를 써줬으니 ()는 필요 없다
+                override fun onPermissionsChecked
+                            (report: MultiplePermissionsReport?) {
+                    // 권한이 모두 허가 되었는지 체크
+                    if(report!!.areAllPermissionsGranted()){
+                        // 카메라로 사진 찍어서 가져오기
+                        val intent = Intent(this@AddHappyPlaceActivity, CameraActivity::class.java)
+                        activityResult.launch(intent)
+                    }
+                    else{
+                        Toast.makeText(
+                            this@AddHappyPlaceActivity,
+                            "권한이 없습니다.",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onPermissionRationaleShouldBeShown
+                            (permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                    // 사용자에게 권한을 요청하는 이유 설명
+                    showRationalDialogForPermissions()
+                }
+            }).onSameThread().check()
     }
 
     private fun showRationalDialogForPermissions(){
@@ -141,17 +173,27 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         binding.etDate.setText(sdf.format(cal.time).toString())
     }
 
-    private val activityCameraResult: ActivityResultLauncher<Intent>
+    private val activityResult: ActivityResultLauncher<Intent>
     = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
         if(result.resultCode == RESULT_OK && result.data != null){
             val data = result.data
-            val path = data?.getStringExtra("path") ?:""
 
+            // 갤러리
+            result.data?.data?.let {
+                binding.ivPlaceImage.setImageURI(it)
+            }
+
+            // 카메라
+            val path = data?.getStringExtra("path") ?:""
             if(path.isNotEmpty()){
                 try{
                     val bitmap = BitmapFactory.decodeFile(path)
                     binding.ivPlaceImage.setImageBitmap(bitmap)
                     binding.ivPlaceImage.rotation = 90f
+
+                    // 사용 후 삭제(필요하다면)
+                    val file = File(path)
+                    file.delete()
                 }catch (e: Exception) {
                     Log.e("Image Error", e.message, e)
                     e.printStackTrace()
@@ -159,6 +201,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
 
             }
+
         }
     }
 }
