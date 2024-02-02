@@ -1,4 +1,4 @@
-package com.example.happyplace
+package com.example.happyplace.activities
 
 import android.content.Intent
 import android.net.Uri
@@ -13,9 +13,9 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import com.example.happyplace.R
 import com.example.happyplace.databinding.ActivityCameraBinding
 import java.io.File
-import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService

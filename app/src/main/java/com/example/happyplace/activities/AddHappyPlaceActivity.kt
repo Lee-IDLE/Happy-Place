@@ -1,10 +1,13 @@
-package com.example.happyplace
+package com.example.happyplace.activities
 
 import android.Manifest
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -14,8 +17,10 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.happyplace.R
 import com.example.happyplace.databinding.ActivityAddHappyPlaceBinding
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -23,21 +28,35 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityAddHappyPlaceBinding
 
     private var cal = Calendar.getInstance()
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
+    private var saveImageToInternalStorage: Uri? = null
+    private var mlatitude: Double = 0.0
+    private var mlongitude: Double = 0.0
+
+    companion object {
+        private const val GALLERY = 1
+        private const val CAMERA = 2
+        private const val IMAGE_DIRECTORY = "HappyPlacesImages"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // toolbar 초기화
         setSupportActionBar(binding.toolbarAddPlace)
         if(supportActionBar != null) {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -49,6 +68,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             finish()
         }
 
+        // 날짜 view 선택시 날짜 선택 다이얼로그 띄우고 사용자 선택 후 처리
         dateSetListener = DatePickerDialog.OnDateSetListener{ view, year, month, dayOfMonth ->
             cal.set(Calendar.YEAR, year)
             cal.set(Calendar.MONTH, month)
@@ -57,6 +77,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         }
         binding.etDate.setOnClickListener(this@AddHappyPlaceActivity)
         binding.tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
+        binding.btnSave.setOnClickListener(this@AddHappyPlaceActivity)
     }
 
     override fun onClick(v: View?) {
@@ -78,6 +99,9 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 pictureDialog.show()
+            }
+            R.id.btnSave -> {
+                // TODO: save the DataModel to the database
             }
         }
     }
@@ -174,12 +198,17 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private val activityResult: ActivityResultLauncher<Intent>
-    = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+    = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result: ActivityResult ->
         if(result.resultCode == RESULT_OK && result.data != null){
             val data = result.data
 
             // 갤러리
             result.data?.data?.let {
+                val inputStream = contentResolver.openInputStream(it)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+
+                saveImageToInternalStorage = saveImageToInternalStorage(bitmap)
+                Log.i("Saved image: ", "Path :: $saveImageToInternalStorage")
                 binding.ivPlaceImage.setImageURI(it)
             }
 
@@ -191,6 +220,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     binding.ivPlaceImage.setImageBitmap(bitmap)
                     binding.ivPlaceImage.rotation = 90f
 
+                    saveImageToInternalStorage = saveImageToInternalStorage(bitmap)
+                    Log.i("Saved image: ", "Path :: $saveImageToInternalStorage")
                     // 사용 후 삭제(필요하다면)
                     val file = File(path)
                     file.delete()
@@ -203,5 +234,26 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             }
 
         }
+    }
+
+    private fun saveImageToInternalStorage(bitmap: Bitmap): Uri{
+        val wrapper = ContextWrapper(applicationContext)
+        // MODE_PRIVATE: 같은 ID의 애플리케이션 혹은 호출된 어플리케이션에서만
+        // 접근할 수 있도록 한다.
+        var file = wrapper.getDir(IMAGE_DIRECTORY, Context.MODE_PRIVATE)
+        // UUID.randomUUID() 무작위 값
+        file = File(file, "${UUID.randomUUID()}.jpg")
+
+        try{
+            val stream : OutputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.flush()
+            stream.close()
+
+        }catch (e: IOException){
+            e.printStackTrace()
+        }
+
+        return Uri.parse(file.absolutePath)
     }
 }
