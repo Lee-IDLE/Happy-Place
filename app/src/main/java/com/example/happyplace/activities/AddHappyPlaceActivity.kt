@@ -21,7 +21,9 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.happyplace.R
+import com.example.happyplace.database.DatabaseHandler
 import com.example.happyplace.databinding.ActivityAddHappyPlaceBinding
+import com.example.happyplace.models.HappyPlaceModel
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -75,6 +77,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             cal.set(Calendar.DAY_OF_YEAR, dayOfMonth)
             updateDateInView()
         }
+        updateDateInView()
         binding.etDate.setOnClickListener(this@AddHappyPlaceActivity)
         binding.tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
         binding.btnSave.setOnClickListener(this@AddHappyPlaceActivity)
@@ -101,7 +104,39 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 pictureDialog.show()
             }
             R.id.btnSave -> {
-                // TODO: save the DataModel to the database
+                when{
+                    binding.etTitle.text.isNullOrEmpty() -> {
+                        Toast.makeText(this, "Please enter title", Toast.LENGTH_SHORT).show()
+                    }
+                    binding.etDescription.text.isNullOrEmpty() -> {
+                        Toast.makeText(this, "Please enter a description", Toast.LENGTH_SHORT).show()
+                    }
+                    binding.etLocation.text.isNullOrEmpty() -> {
+                        Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show()
+                    }
+                    saveImageToInternalStorage == null -> {
+                        Toast.makeText(this, "Please select an image", Toast.LENGTH_SHORT).show()
+                    } else -> {
+                        val happyPlaceModel = HappyPlaceModel(
+                            0,
+                            binding.etTitle.text.toString(),
+                            saveImageToInternalStorage.toString(),
+                            binding.etDescription.toString(),
+                            binding.etDate.text.toString(),
+                            binding.etLocation.text.toString(),
+                            mlatitude,
+                            mlongitude
+                        )
+                        val dbHandler = DatabaseHandler(this)
+                        val addHappyPlace = dbHandler.addHappyPlace(happyPlaceModel)
+
+                        if(addHappyPlace > 0){
+                            setResult(RESULT_OK)
+                            finish()
+                        }
+                    }
+                }
+
             }
         }
     }

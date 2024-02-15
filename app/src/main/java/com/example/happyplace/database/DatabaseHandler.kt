@@ -2,7 +2,9 @@ package com.example.happyplace.database
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.happyplace.models.HappyPlaceModel
 
@@ -67,5 +69,40 @@ class DatabaseHandler(context: Context)
 
         db.close()
         return result
+    }
+
+    fun getHappyPlaceList(): ArrayList<HappyPlaceModel>{
+        val happyPlaceList: ArrayList<HappyPlaceModel> = arrayListOf()
+
+        val selectQuery = "SELECT * FROM $TABLE_HAPPY_PLACE"
+
+        val db = this.readableDatabase
+
+        try{
+            val cursor: Cursor = db.rawQuery(selectQuery, null)
+            if(cursor.moveToFirst()){
+                do{
+                    val test = cursor.getColumnIndex(KEY_LATITUDE)
+                    val place = HappyPlaceModel(
+                        cursor.getInt(cursor.getColumnIndex(KEY_ID)?:0),
+                        cursor.getString(cursor.getColumnIndex(KEY_TITLE)?:0),
+                        cursor.getString(cursor.getColumnIndex(KEY_IMAGE)?:0),
+                        cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION)?:0),
+                        cursor.getString(cursor.getColumnIndex(KEY_DATE)?:0),
+                        cursor.getString(cursor.getColumnIndex(KEY_LOCATION)?:0),
+                        cursor.getDouble(cursor.getColumnIndex(KEY_LATITUDE)?:0),
+                        cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)?:0)
+                    )
+                    happyPlaceList.add(place)
+                }while (cursor.moveToNext())
+            }
+            db.close()
+        }catch (e: Exception){
+            e.printStackTrace()
+            return ArrayList()
+        }
+
+
+        return happyPlaceList
     }
 }
