@@ -15,7 +15,7 @@ open class HappyPlacesAdapter(
     private val context: Context,
     private var list: ArrayList<HappyPlaceModel>
 ) : RecyclerView.Adapter<HappyPlacesAdapter.MyViewHolder>() {
-
+    private var onClickListener: OnClickListener? = null
     /**
      * Inflates the item views which is designed in xml layout file
      *
@@ -27,6 +27,10 @@ open class HappyPlacesAdapter(
         return MyViewHolder(ItemHappyPlaceBinding.inflate(LayoutInflater.from(parent.context)))
     }
 
+    fun setOnClickListener(onClickListener: OnClickListener){
+        this.onClickListener = onClickListener
+    }
+
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val model = list[position]
 
@@ -34,9 +38,14 @@ open class HappyPlacesAdapter(
             holder.itemBinding.ivPlaceImage.setImageURI(Uri.parse(model.image))
             holder.itemBinding.tvTitle.text = model.title
             holder.itemBinding.tvDescription.text = model.description
+
+            holder.itemView.setOnClickListener{
+                if(onClickListener != null){
+                    onClickListener!!.onClick(position, model)
+                }
+            }
         }
     }
-
 
     /**
      * Gets the number of items in the list
@@ -49,5 +58,9 @@ open class HappyPlacesAdapter(
      * A ViewHolder describes an item view and metadata about its place within the RecyclerView.
      */
     inner class MyViewHolder(val itemBinding: ItemHappyPlaceBinding) : RecyclerView.ViewHolder(itemBinding.root)
+
+    interface OnClickListener {
+        fun onClick(position: Int, model: HappyPlaceModel)
+    }
 }
 // END
