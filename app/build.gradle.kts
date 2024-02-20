@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.backend.wasm.ir2wasm.bind
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
 }
 
 android {

@@ -1,14 +1,18 @@
 package com.example.happyplace.models
 
-data class HappyPlaceModel(
-    val id: Int,
-    val title: String,
-    val image: String,
-    val description: String,
-    val date: String,
-    val location: String,
-    val latitude: Double,
-    val longitude: Double
-){
+import android.os.Parcel
+import android.os.Parcelable
+import kotlinx.parcelize.Parceler
+import kotlinx.parcelize.Parcelize
 
-}
+@Parcelize
+data class HappyPlaceModel(
+    val id: Int? = null,
+    val title: String? = null,
+    val image: String? = null,
+    val description: String? = null,
+    val date: String? = null,
+    val location: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null
+): Parcelable
