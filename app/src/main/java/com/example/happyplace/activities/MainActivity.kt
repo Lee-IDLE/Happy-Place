@@ -8,10 +8,12 @@ import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.happyplace.database.DatabaseHandler
 import com.example.happyplace.databinding.ActivityMainBinding
 import com.example.happyplace.models.HappyPlaceModel
 import com.happyplaces.adapters.HappyPlacesAdapter
+import pl.kitek.rvswipetodelete.SwipeToEditCallback
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -33,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         binding.rvHappyPlacesList.layoutManager = LinearLayoutManager(this)
         binding.rvHappyPlacesList.setHasFixedSize(true)
 
-        val placesAdapter = HappyPlacesAdapter(this, happyPlaceList)
+        val placesAdapter = HappyPlacesAdapter(this, happyPlaceList, editHappyPlaceDetail)
         binding.rvHappyPlacesList.adapter = placesAdapter
 
         placesAdapter.setOnClickListener(object: HappyPlacesAdapter.OnClickListener{
@@ -43,6 +45,18 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         })
+
+        val editSwipeHandler = object : SwipeToEditCallback(this){
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                placesAdapter.notifyEditItem(viewHolder.adapterPosition)
+            }
+        }
+    }
+
+    // adapter로 부터 entity값 가져왔고 AddHappyPlaceActivity에 넘겨줄 일만 남았다.
+    private val editHappyPlaceDetail: (HappyPlaceModel) -> Unit = {entity ->
+        val intent = Intent(this@MainActivity, AddHappyPlaceActivity::class.java)
+        addHappyPlaceListener.launch(intent)
     }
 
     private fun getHappyPlacesListFromLocalDB(){
