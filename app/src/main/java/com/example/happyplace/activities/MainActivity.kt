@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.happyplace.database.DatabaseHandler
@@ -40,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         placesAdapter.setOnClickListener(object: HappyPlacesAdapter.OnClickListener{
             override fun onClick(position: Int, model: HappyPlaceModel) {
-                val intent = Intent(this@MainActivity, HappyPlaceDetailActivity::class.java)
+                val intent = Intent(this@MainActivity, AddHappyPlaceActivity::class.java)
                 intent.putExtra(EXTRA_PLACE_DETAILS, model)
                 startActivity(intent)
             }
@@ -51,11 +52,15 @@ class MainActivity : AppCompatActivity() {
                 placesAdapter.notifyEditItem(viewHolder.adapterPosition)
             }
         }
+
+        val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
+        editItemTouchHelper.attachToRecyclerView(binding.rvHappyPlacesList)
     }
 
     // adapter로 부터 entity값 가져왔고 AddHappyPlaceActivity에 넘겨줄 일만 남았다.
     private val editHappyPlaceDetail: (HappyPlaceModel) -> Unit = {entity ->
         val intent = Intent(this@MainActivity, AddHappyPlaceActivity::class.java)
+        intent.putExtra(MainActivity.EXTRA_PLACE_DETAILS, entity)
         addHappyPlaceListener.launch(intent)
     }
 

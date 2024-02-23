@@ -10,6 +10,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -20,6 +22,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import com.example.happyplace.R
 import com.example.happyplace.database.DatabaseHandler
 import com.example.happyplace.databinding.ActivityAddHappyPlaceBinding
@@ -44,8 +47,10 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private var cal = Calendar.getInstance()
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     private var saveImageToInternalStorage: Uri? = null
-    private var mlatitude: Double = 0.0
-    private var mlongitude: Double = 0.0
+    private var mlatitude: Double? = 0.0
+    private var mlongitude: Double? = 0.0
+
+    private var mHappyPlaceDetails: HappyPlaceModel? = null
 
     companion object {
         private const val GALLERY = 1
@@ -53,6 +58,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         private const val IMAGE_DIRECTORY = "HappyPlacesImages"
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
@@ -70,6 +76,15 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             finish()
         }
 
+        if(intent.hasExtra(MainActivity.EXTRA_PLACE_DETAILS)){
+            if(SDK_INT >= 33){
+                mHappyPlaceDetails = intent.getParcelableExtra(MainActivity.EXTRA_PLACE_DETAILS, HappyPlaceModel::class.java)
+            }else if(SDK_INT < 33){
+                mHappyPlaceDetails = intent.getParcelableExtra(MainActivity.EXTRA_PLACE_DETAILS) as HappyPlaceModel?
+            }
+
+        }
+
         // 날짜 view 선택시 날짜 선택 다이얼로그 띄우고 사용자 선택 후 처리
         dateSetListener = DatePickerDialog.OnDateSetListener{ view, year, month, dayOfMonth ->
             cal.set(Calendar.YEAR, year)
@@ -78,6 +93,24 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             updateDateInView()
         }
         updateDateInView()
+
+        if(mHappyPlaceDetails != null){
+            supportActionBar?.title = "Edit Happy Place"
+
+            binding.etTitle.setText(mHappyPlaceDetails!!.title)
+            binding.etDescription.setText(mHappyPlaceDetails!!.description)
+            binding.etDate.setText(mHappyPlaceDetails!!.date)
+            binding.etLocation.setText(mHappyPlaceDetails!!.location)
+            mlatitude = mHappyPlaceDetails!!.latitude
+            mlongitude = mHappyPlaceDetails!!.longitude
+
+            saveImageToInternalStorage = Uri.parse(mHappyPlaceDetails!!.image)
+
+            binding.ivPlaceImage.setImageURI(saveImageToInternalStorage)
+
+            binding.btnSave.text = "UPDATE"
+        }
+
         binding.etDate.setOnClickListener(this@AddHappyPlaceActivity)
         binding.tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
         binding.btnSave.setOnClickListener(this@AddHappyPlaceActivity)
@@ -118,7 +151,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                         Toast.makeText(this, "Please select an image", Toast.LENGTH_SHORT).show()
                     } else -> {
                         val happyPlaceModel = HappyPlaceModel(
-                            0,
+                            if(mHappyPlaceDetails == null) null else mHappyPlaceDetails!!.id,
                             binding.etTitle.text.toString(),
                             saveImageToInternalStorage.toString(),
                             binding.etDescription.toString(),
@@ -128,11 +161,19 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                             mlongitude
                         )
                         val dbHandler = DatabaseHandler(this)
-                        val addHappyPlace = dbHandler.addHappyPlace(happyPlaceModel)
 
-                        if(addHappyPlace > 0){
-                            setResult(RESULT_OK)
-                            finish()
+                        if(mHappyPlaceDetails == null){
+                            val addHappyPlace = dbHandler.addHappyPlace(happyPlaceModel)
+                            if(addHappyPlace > 0){
+                                setResult(RESULT_OK)
+                                finish()
+                            }
+                        }else{
+                            val updateHappyPlace = dbHandler.updateHappyPlace(happyPlaceModel)
+                            if(updateHappyPlace > 0){
+                                setResult(RESULT_OK)
+                                finish()
+                            }
                         }
                     }
                 }
