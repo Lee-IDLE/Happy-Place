@@ -14,6 +14,7 @@ import com.example.happyplace.database.DatabaseHandler
 import com.example.happyplace.databinding.ActivityMainBinding
 import com.example.happyplace.models.HappyPlaceModel
 import com.happyplaces.adapters.HappyPlacesAdapter
+import pl.kitek.rvswipetodelete.SwipeToDeleteCallback
 import pl.kitek.rvswipetodelete.SwipeToEditCallback
 
 class MainActivity : AppCompatActivity() {
@@ -47,22 +48,46 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        // 오른쪽으로 스와이프시 실행될 내용
         val editSwipeHandler = object : SwipeToEditCallback(this){
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 placesAdapter.notifyEditItem(viewHolder.adapterPosition)
             }
         }
 
+        // 왼쪽으로 스와이프시 실행될 내용
+        val deleteSwipeHandler = object : SwipeToDeleteCallback(this){
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                placesAdapter.removeAt(viewHolder.adapterPosition)
+                getHappyPlacesListFromLocalDB()
+            }
+        }
+
+        // 오른쪽 스와이프 기능을 RecyclerView에 연결
         val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
         editItemTouchHelper.attachToRecyclerView(binding.rvHappyPlacesList)
+
+        val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+        deleteItemTouchHelper.attachToRecyclerView(binding.rvHappyPlacesList)
     }
 
-    // adapter로 부터 entity값 가져왔고 AddHappyPlaceActivity에 넘겨줄 일만 남았다.
+    /**
+     * Recycler View를 오른쪽으로 스와이프하여 수정하는 작업
+     */
     private val editHappyPlaceDetail: (HappyPlaceModel) -> Unit = {entity ->
         val intent = Intent(this@MainActivity, AddHappyPlaceActivity::class.java)
         intent.putExtra(MainActivity.EXTRA_PLACE_DETAILS, entity)
         addHappyPlaceListener.launch(intent)
     }
+
+    val addHappyPlaceListener: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){result ->
+            if(result.resultCode == RESULT_OK){
+                getHappyPlacesListFromLocalDB()
+            }else{
+                Log.e("Activity", "Cancelled or back pressed")
+            }
+        }
 
     private fun getHappyPlacesListFromLocalDB(){
         val dbHandler = DatabaseHandler(this)
@@ -77,15 +102,6 @@ class MainActivity : AppCompatActivity() {
             binding.tvNoRecordsAvailable.visibility = View.VISIBLE
         }
     }
-
-    val addHappyPlaceListener: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){result ->
-            if(result.resultCode == RESULT_OK){
-                getHappyPlacesListFromLocalDB()
-            }else{
-                Log.e("Activity", "Cancelled or back pressed")
-            }
-        }
 
     companion object {
         var ADD_PLACE_ACTIVITY_REQUEST_CODE = 1
