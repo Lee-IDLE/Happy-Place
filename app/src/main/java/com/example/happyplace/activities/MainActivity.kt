@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         placesAdapter.setOnClickListener(object: HappyPlacesAdapter.OnClickListener{
             override fun onClick(position: Int, model: HappyPlaceModel) {
-                val intent = Intent(this@MainActivity, AddHappyPlaceActivity::class.java)
+                val intent = Intent(this@MainActivity, HappyPlaceDetailActivity::class.java)
                 intent.putExtra(EXTRA_PLACE_DETAILS, model)
                 startActivity(intent)
             }
