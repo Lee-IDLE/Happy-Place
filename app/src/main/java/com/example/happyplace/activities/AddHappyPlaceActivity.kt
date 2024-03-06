@@ -1,6 +1,7 @@
 package com.example.happyplace.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
@@ -9,6 +10,8 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.LocationManager
+import android.location.LocationProvider
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -27,6 +30,10 @@ import com.example.happyplace.R
 import com.example.happyplace.database.DatabaseHandler
 import com.example.happyplace.databinding.ActivityAddHappyPlaceBinding
 import com.example.happyplace.models.HappyPlaceModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -55,6 +62,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private var mlongitude: Double? = 0.0
 
     private var mHappyPlaceDetails: HappyPlaceModel? = null
+
+    private lateinit var mFuesedLocationClient: FusedLocationProviderClient
 
     companion object {
         private const val GALLERY = 1
@@ -120,10 +129,24 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             binding.btnSave.text = "UPDATE"
         }
 
+        mFuesedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         binding.etDate.setOnClickListener(this@AddHappyPlaceActivity)
         binding.tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
         binding.btnSave.setOnClickListener(this@AddHappyPlaceActivity)
         binding.etLocation.setOnClickListener(this@AddHappyPlaceActivity)
+        binding.tvSelectCurrentLocation.setOnClickListener(this@AddHappyPlaceActivity)
+    }
+
+    /**
+     * 사용자 위치를 알 수 있는지 확인하는 함수
+     * - GPS와 NETWORK 둘 다 확인한다
+     * @return true: 확인 가능, false: 확인 불가능
+     */
+    private fun isLocationEnabled(): Boolean{
+        val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     override fun onClick(v: View?) {
@@ -204,6 +227,36 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     autoCompleteRequest.launch(intent)
                 }catch (e: Exception){
                     e.printStackTrace()
+                }
+            }
+            R.id.tv_select_current_location -> {
+                if(!isLocationEnabled()){
+                    Toast.makeText(
+                        this,
+                        "Your location provider is turned off. please ture on.",
+                        Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                }else{
+                    Dexter.withActivity(this).withPermissions(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION)
+                        .withListener(object: MultiplePermissionsListener{
+                            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                                if(report!!.areAllPermissionsGranted()){
+                                    requestNewLocationData()
+                                }
+                            }
+
+                            override fun onPermissionRationaleShouldBeShown(
+                                permissions: MutableList<PermissionRequest>?,
+                                token: PermissionToken?
+                            ) {
+                                showRationalDialogForPermissions()
+                            }
+
+                        }).onSameThread().check()
                 }
             }
         }
@@ -368,5 +421,14 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             mlatitude = place.latLng!!.latitude
             mlongitude = place.latLng!!.longitude
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData(){
+        mFuesedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+            .addOnSuccessListener { location ->
+                mlatitude = location.latitude
+                mlongitude = location.longitude
+            }
     }
 }
